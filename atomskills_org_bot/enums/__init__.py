@@ -1,3 +1,4 @@
 from .service_name_enum import ServiceNameEnum
 from .service_comment_enum import ServiceCommentEnum
 from .service_chat_id_enum import ServiceChatIdEnum
+from .service_state_enum import ServiceStateEnum

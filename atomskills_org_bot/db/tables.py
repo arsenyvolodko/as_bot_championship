@@ -1,7 +1,10 @@
-from sqlalchemy import BigInteger, Column
+from sqlalchemy import BigInteger, Column, ForeignKey
 from sqlalchemy.ext.asyncio import AsyncAttrs
 from sqlalchemy.orm import DeclarativeBase, Mapped, mapped_column
+from sqlalchemy.types import DateTime
+from datetime import datetime
 
+from atomskills_org_bot.enums.answer_status_enum import AnswerStatusEnum
 from atomskills_org_bot.enums.service_name_enum import ServiceNameEnum
 
 
@@ -12,13 +15,10 @@ class Base(AsyncAttrs, DeclarativeBase):
 class User(Base):
     __tablename__ = "user"
 
-    id: Column = Column(
+    id = Column(
         BigInteger,
         primary_key=True,
         autoincrement=False,
-        nullable=False,
-        unique=True,
-        index=True,
     )
 
     username: Mapped[str] = mapped_column(
@@ -26,7 +26,41 @@ class User(Base):
         unique=True,
     )
 
-    request_status: Mapped[ServiceNameEnum] = mapped_column(
+
+class Request(Base):
+    __tablename__ = "request"
+
+    id: Mapped[int] = mapped_column(
+        primary_key=True,
+    )
+
+    user_id = Column(
+        BigInteger,
+        ForeignKey("user.id"),
+        nullable=False,
+    )
+
+    text: Mapped[str] = mapped_column(nullable=False)
+
+    service: Mapped[ServiceNameEnum] = mapped_column(
+        nullable=False,
+    )
+
+    status: Mapped[AnswerStatusEnum] = mapped_column(
+        nullable=False, default=AnswerStatusEnum.IGNORED
+    )
+
+    time = Column(DateTime, nullable=False, default=datetime.now)
+
+    source_chat_msg_text: Mapped[str] = mapped_column(nullable=True)
+    common_chat_msg_text: Mapped[str] = mapped_column(nullable=True)
+
+    source_chat_msg_id = Column(
+        BigInteger,
         nullable=True,
-        default=None,
+    )
+
+    common_chat_msg_id = Column(
+        BigInteger,
+        nullable=True,
     )
