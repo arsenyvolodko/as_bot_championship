@@ -34,8 +34,10 @@ dp.include_router(router)
 
 
 @dp.message(CommandStart())
-async def welcome_message(message: types.Message) -> None:
+async def welcome_message(message: types.Message, state: FSMContext) -> None:
     await add_and_get_user(message)
+    if state:
+        await state.clear()
     await message.answer(START_TEXT, reply_markup=get_main_keyboard())
 
 
@@ -61,7 +63,8 @@ async def process_callback_button1(message: Message, state: FSMContext = None):
     await state.set_state(service.state.value)
     message = await message.answer(
         f'Ваше обращение будет направлено в сервис "{service.service_name.value}".\n'
-        "Введите текст для обращения. После отправки текста обращения оно будет автоматически отправлено.",
+        'Отправьте сообщение с текстом обращени, Не забудьте указать всю необходимую информацию для представителей сервиса.\n'
+        "После отправки сообщения обращение будет автоматически направлено в выбранный сервис.",
         reply_markup=get_cancel_keyboard(),
     )
     await state.set_data({"message": message, "service": service})
@@ -98,8 +101,7 @@ async def handle_request_message(message: Message, state: FSMContext):
     )
 
     msg_to_source = await message.answer(
-        text_to_source + f"{STATUS_INFO.format(AnswerStatusEnum.IGNORED.value)}",
-        reply_markup=get_main_keyboard()
+        text=text_to_source + f"{STATUS_INFO.format(AnswerStatusEnum.IGNORED.value)}",
     )
 
     text_to_common = (
@@ -133,7 +135,7 @@ async def handle_request_message(message: Message, state: FSMContext):
         await message.bot.send_message(
             chat_id=ServiceChatIdEnum.MY_CHAT_ID.value,
             text=f"error sending request from @{message.from_user.username} to"
-            f"{service.service_name.value}.\nerror: {e}",
+                 f"{service.service_name.value}.\nerror: {e}",
         )
 
 
@@ -203,6 +205,7 @@ async def handle_query(call: types.CallbackQuery, callback_data: ServiceAnswerCa
         chat_id=request.user_id,
         text=text_to_source,
         reply_to_message_id=request.source_chat_msg_id,
+        reply_markup=get_main_keyboard()
     )
 
     await call.message.edit_reply_markup(reply_markup=None)
