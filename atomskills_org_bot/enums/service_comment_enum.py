@@ -13,3 +13,4 @@ class ServiceCommentEnum(Enum):
     SERVICE_COMMENT_7 = chats_config.SERVICE_COMMENT_7
     SERVICE_COMMENT_8 = chats_config.SERVICE_COMMENT_8
     SERVICE_COMMENT_9 = chats_config.SERVICE_COMMENT_9
+    SERVICE_COMMENT_10 = chats_config.SERVICE_COMMENT_10

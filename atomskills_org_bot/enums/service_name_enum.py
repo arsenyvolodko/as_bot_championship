@@ -13,3 +13,4 @@ class ServiceNameEnum(Enum):
     SERVICE_NAME_7 = chats_config.SERVICE_NAME_7
     SERVICE_NAME_8 = chats_config.SERVICE_NAME_8
     SERVICE_NAME_9 = chats_config.SERVICE_NAME_9
+    SERVICE_NAME_10 = chats_config.SERVICE_NAME_10
