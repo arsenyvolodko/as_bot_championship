@@ -9,4 +9,5 @@ STATUS_INFO = "Статус обращения: {}."
 
 HELP_TEXT = ""
 for key in SERVICE_MODELS:
-    HELP_TEXT += f"<b>{key}</b>: {SERVICE_MODELS[key].comment.value}.\n"
+    HELP_TEXT += f"<b>{key}</b>: {SERVICE_MODELS[key].comment.value}.\n\n"
+HELP_TEXT += f"В случае технических неисправностей с ботом обращаться к @arseny_volodko"
