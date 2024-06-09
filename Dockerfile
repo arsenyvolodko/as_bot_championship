@@ -9,7 +9,7 @@ RUN python3 -m pip install --upgrade pip \
  && python3 -m pip install poetry \
  && python3 -m poetry install --no-root
 
-COPY .. .
+COPY . .
 
 ENV PYTHONUNBUFFERED=1 \
     PYTHONDONTWRITEBYTECODE=1 \
