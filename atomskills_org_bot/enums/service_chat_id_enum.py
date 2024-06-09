@@ -13,6 +13,5 @@ class ServiceChatIdEnum(Enum):
     SERVICE_CHAT_ID_7 = chats_config.SERVICE_CHAT_ID_7
     SERVICE_CHAT_ID_8 = chats_config.SERVICE_CHAT_ID_8
     SERVICE_CHAT_ID_9 = chats_config.SERVICE_CHAT_ID_9
-    SERVICE_CHAT_ID_10 = chats_config.SERVICE_CHAT_ID_10
     COMMON_CHAT_ID = chats_config.COMMON_CHAT_ID
     MY_CHAT_ID = chats_config.MY_CHAT_ID
