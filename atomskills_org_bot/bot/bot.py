@@ -2,7 +2,6 @@ from aiogram import Dispatcher, types, F, Router
 from aiogram.filters import CommandStart, Command
 from aiogram.types import Message
 
-from atomskills_org_bot import chats_config
 from atomskills_org_bot.consts import (
     CANCEL_CALLBACK,
     START_TEXT,
@@ -106,7 +105,7 @@ async def handle_request_message(message: Message, state: FSMContext):
     )
 
     text_to_common = (
-        f"Обращение №{request.id} из бота {chats_config.FROM_BOT}:\n"
+        f"Обращение №{request.id}:\n"
         f'Текст обращения: "{request.text}"\n'
         f"Сервис-получатель: {service.service_name.value}.\n"
         f"Направлено от: @{message.from_user.username}.\n"
