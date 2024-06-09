@@ -15,4 +15,3 @@ class ServiceStateEnum(Enum):
     SERVICE_STATE_7 = State(ServiceNameEnum.SERVICE_NAME_7.name)
     SERVICE_STATE_8 = State(ServiceNameEnum.SERVICE_NAME_8.name)
     SERVICE_STATE_9 = State(ServiceNameEnum.SERVICE_NAME_9.name)
-    SERVICE_STATE_10 = State(ServiceNameEnum.SERVICE_NAME_10.name)
