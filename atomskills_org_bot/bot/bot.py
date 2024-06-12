@@ -1,179 +1,314 @@
-from aiogram import Dispatcher, types, F, Router
-from aiogram.filters import CommandStart, Command
-from aiogram.types import Message
-
-from atomskills_org_bot.consts import (
-    CANCEL_CALLBACK,
-    START_TEXT,
-    HELP_TEXT,
-    STATUS_INFO,
-)
-from atomskills_org_bot.db.manager import db_manager
-from atomskills_org_bot.db.tables import Request
-from atomskills_org_bot.enums import ServiceNameEnum, ServiceChatIdEnum
-from atomskills_org_bot.enums.answer_status_enum import AnswerStatusEnum
-from atomskills_org_bot.models import ServiceModel
-from atomskills_org_bot.utils import (
-    text_in_service_models,
-    ServiceAnswerCallback,
-    add_and_get_user,
-)
-from atomskills_org_bot.utils.keyboards import (
-    get_main_keyboard,
-    get_cancel_keyboard,
-    get_service_ans_keyboard,
-)
-
+from aiogram import Dispatcher, Router, F
+from aiogram.filters import CommandStart
 from aiogram.fsm.context import FSMContext
+from aiogram.types import Message, CallbackQuery
 
-from atomskills_org_bot.utils.services import SERVICE_MODELS
+from atomskills_org_bot.db.manager import db_manager
+from atomskills_org_bot.db.tables import Hall, Request, User
+from atomskills_org_bot.keyboards.keyboards import *
 
 dp = Dispatcher()
 router = Router()
 dp.include_router(router)
 
 
-@dp.message(CommandStart())
-async def welcome_message(message: types.Message, state: FSMContext) -> None:
+@router.message(CommandStart())
+async def welcome_message(message: Message, state: FSMContext):
     await add_and_get_user(message)
     if state:
         await state.clear()
-    await message.answer(START_TEXT, reply_markup=get_main_keyboard())
+    await message.answer(START_TEXT, reply_markup=get_back_to_main_keyboard())
 
 
-@router.message(Command("help"))
-async def handle_main_menu_callback(message: Message):
+async def add_and_get_user(message: Message):
+    user_id = message.from_user.id
+    user = await db_manager.get_record(User, user_id)
+    if not user:
+        new_user = User(id=user_id, username=message.from_user.username)
+        user = await db_manager.add_record(new_user)
+    return user
+
+
+@router.callback_query(F.data == BACK_TO_MAIN_MENU_CALLBACK)
+async def handle_main_menu_callback(call: CallbackQuery):
+    options = await db_manager.get_records(Hall)
+    await call.message.edit_text(
+        HALL_CHOICE_TEXT, reply_markup=get_hall_choice_keyboard(options)
+    )
+
+
+@router.callback_query(HallChoiceFactory.filter())
+async def handle_hall_choice_callback(
+    call: CallbackQuery, callback_data: HallChoiceFactory
+):
+    hall_id = callback_data.hall_id
+    options = await db_manager.get_records(Location, hall_id=hall_id)
+    await call.message.edit_text(
+        LOCATION_CHOICE_TEXT,
+        reply_markup=get_location_choice_keyboard(options, hall_id, 1),
+    )
+
+
+@router.callback_query(LocationPageFactory.filter())
+async def handle_location_turn_page_callback(
+    call: CallbackQuery, callback_data: LocationPageFactory
+):
+    hall_id = callback_data.hall_id
+    options = await db_manager.get_records(Location, hall_id=hall_id)
+    await call.message.edit_text(
+        LOCATION_CHOICE_TEXT,
+        reply_markup=get_location_choice_keyboard(
+            options, hall_id, callback_data.page_num
+        ),
+    )
+
+
+@router.callback_query(LocationChoiceFactory.filter())
+async def handle_location_choice_callback(
+    call: CallbackQuery, callback_data: LocationChoiceFactory
+):
+    hall_id = callback_data.hall_id
+    options = await db_manager.get_records(Service)
+    await call.message.edit_text(
+        SERVICE_CHOICE_TEXT,
+        reply_markup=get_service_choice_keyboard(
+            options, hall_id, callback_data.location_id, 1
+        ),
+    )
+
+
+@router.callback_query(ServicePageFactory.filter())
+async def handle_service_turn_page_callback(
+    call: CallbackQuery, callback_data: ServicePageFactory
+):
+    options = await db_manager.get_records(Service)
+    await call.message.edit_text(
+        SERVICE_CHOICE_TEXT,
+        reply_markup=get_service_choice_keyboard(
+            options,
+            callback_data.hall_id,
+            callback_data.location_id,
+            callback_data.page_num,
+        ),
+    )
+
+
+@router.callback_query(ServiceChoiceFactory.filter())
+async def handle_service_choice_callback(
+    call: CallbackQuery, callback_data: ServiceChoiceFactory
+):
+    service_id = callback_data.service_id
+    options = await db_manager.get_records(Option, service_id=service_id)
+    await call.message.edit_text(
+        OPTION_CHOICE_TEXT,
+        reply_markup=get_option_choice_keyboard(
+            options, callback_data.hall_id, callback_data.location_id, service_id
+        ),
+    )
+
+
+@router.callback_query(OptionChoiceFactory.filter())
+async def handle_option_choice_callback(
+    call: CallbackQuery, callback_data: OptionChoiceFactory, state: FSMContext
+):
+    await state.set_state(COMMENT_AWAITING_STATE)
+    await state.set_data(
+        {
+            "msg_id": call.message.message_id,
+            "location_id": callback_data.location_id,
+            "option_id": callback_data.option_id,
+        }
+    )
+
+    await call.message.edit_text(
+        COMMENT_CHOICE_TEXT,
+        reply_markup=get_skip_keyboard(
+            callback_data.location_id, callback_data.option_id
+        ),
+    )
+
+
+@router.callback_query(SkipFactory.filter())
+async def handle_skip_callback(
+    call: CallbackQuery, callback_data: SkipFactory, state: FSMContext
+):
+    await state.clear()
+
+    location: Location = await db_manager.get_record(
+        Location, callback_data.location_id
+    )
+    option: Option = await db_manager.get_record(Option, callback_data.option_id)
+    service: Service = await db_manager.get_record(Service, option.service_id)
+
+    msg_text = construct_confirmation_message(service.name, location.name, option.name)
+
+    await call.message.edit_text(
+        text=msg_text,
+        reply_markup=get_confirmation_keyboard(service, location, option),
+        parse_mode="HTML",
+    )
+
+
+@router.message(COMMENT_AWAITING_STATE)
+async def handle_comment_message(message: Message, state: FSMContext):
+    state_data = await state.get_data()
+    await state.set_state(CONFIRMATION_AWAITING_STATE)
+    await state.set_data({"comment": message.text})
+
+    await message.bot.edit_message_reply_markup(
+        chat_id=message.from_user.id, message_id=state_data["msg_id"], reply_markup=None
+    )
+
+    location: Location = await db_manager.get_record(
+        Location, state_data["location_id"]
+    )
+    option: Option = await db_manager.get_record(Option, state_data["option_id"])
+    service: Service = await db_manager.get_record(Service, option.service_id)
+
+    msg_text = construct_confirmation_message(
+        service.name, location.name, option.name, message.text
+    )
+
     await message.answer(
-        text=HELP_TEXT,
-        reply_markup=get_main_keyboard(),
-        parse_mode="HTML"
+        text=msg_text,
+        reply_markup=get_confirmation_keyboard(service, location, option),
+        parse_mode="HTML",
     )
 
 
-@router.message(text_in_service_models)
-async def process_callback_button1(message: Message, state: FSMContext = None):
-    service: ServiceModel = SERVICE_MODELS[message.text]
-
-    current_state = await state.get_state()
-    if current_state:
-        data = await state.get_data()
-        old_msg = data["message"]
-        await old_msg.delete()
-
-    await state.set_state(service.state.value)
-    message = await message.answer(
-        f'Ваше обращение будет направлено в сервис "{service.service_name.value}".\n'
-        'Отправьте сообщение с текстом обращени, Не забудьте указать всю необходимую информацию для представителей сервиса.\n'
-        "После отправки сообщения обращение будет автоматически направлено в выбранный сервис.",
-        reply_markup=get_cancel_keyboard(),
+def construct_confirmation_message(
+    service: str, location: str, option: str, comment: str | None = None
+) -> str:
+    msg_text = (
+        "Подтвердите отправку обращения.\n"
+        f"<b>Тематика обращения</b>: {service}\n"
+        f"<b>Компетенция</b>: {location}\n"
+        f"<b>Цель обращения</b>: {option}\n"
     )
-    await state.set_data({"message": message, "service": service})
+
+    if comment:
+        msg_text += f"<b>Ваш комментарий</b>: {comment}"
+
+    return msg_text
 
 
-@router.message()
-async def handle_request_message(message: Message, state: FSMContext):
-    current_state = await state.get_state()
-    if not current_state:
-        await message.answer(
-            "Сервис не выбран. Для отправки обращения, необходимо сначала выбрать сервис, воспользовавшись клавиатурой",
-            reply_markup=get_main_keyboard(),
+@router.callback_query(ConfirmationFactory.filter())
+async def handle_confirmation_callback(
+    call: CallbackQuery, callback_data: ConfirmationFactory
+):
+    options = await db_manager.get_records(Hall)
+    if not callback_data.confirmed:
+        await call.message.edit_text(text="Ваше обращение было отменено.")
+        await call.message.answer(
+            text=HALL_CHOICE_TEXT, reply_markup=get_hall_choice_keyboard(options)
         )
         return
 
-    state_data = await state.get_data()
-    old_msg: Message = state_data["message"]
-    service: ServiceModel = state_data["service"]
-    await old_msg.delete()
-    await state.clear()
+    await call.message.delete_reply_markup()
+
+    service: Service = await db_manager.get_record(Service, callback_data.service_id)
+    location: Location = await db_manager.get_record(
+        Location, callback_data.location_id
+    )
+    option: Option = await db_manager.get_record(Option, callback_data.option_id)
+    comment = get_comment_from_message_text(call.message.text)
 
     new_request = Request(
-        user_id=message.from_user.id, text=message.text, service=service.service_name
+        user_id=call.from_user.id,
+        text=comment,
+        service_id=service.id,
+        location_id=location.id,
+        option_id=option.id,
     )
 
     request: Request = await db_manager.add_record(new_request)
-    await send_request(message.bot, request)
+    await send_request(call.bot, request)
 
     text_to_source = (
-        "Ваше обращение было отправлено.\n"
-        f"Сервис-получатель: {service.service_name.value}.\n"
+        "Ваше обращение было успешно отправлено.\n"
         f"Уникальный номер вашего обращения: {request.id}.\n"
-        f"Мы сообщим, ориентировочное время выполнения после ответа представителя сервиса.\n"
+        f"Мы сообщим, ориентировочное время выполнения после ответа представителя выбранной тематики.\n"
     )
 
-    msg_to_source = await message.answer(
+    msg_to_source = await call.message.answer(
         text=text_to_source + f"{STATUS_INFO.format(AnswerStatusEnum.IGNORED.value)}",
+    )
+    await call.message.answer(
+        text=HALL_CHOICE_TEXT, reply_markup=get_hall_choice_keyboard(options)
     )
 
     text_to_common = (
-        f"Обращение №{request.id}:\n"
-        f'Текст обращения: "{request.text}"\n'
-        f"Сервис-получатель: {service.service_name.value}.\n"
-        f"Направлено от: @{message.from_user.username}.\n"
+        f"<b>Обращение №{request.id}:</b>\n"
+        f"<b>Тематика обращения</b>: {service.name}.\n"
+        f"<b>Компетенция</b>: {location.name}.\n"
+        f"<b>Цель обращения</b>: {option.name}.\n"
+        f"<b>Направлено от</b>: @{call.from_user.username}.\n"
     )
+    if comment:
+        text_to_common += f'<b>Текст обращения</b>: "{request.text}"\n'
 
-    msg_to_common = await message.bot.send_message(
-        chat_id=ServiceChatIdEnum.COMMON_CHAT_ID.value,
+    msg_to_common = await call.bot.send_message(
+        chat_id=COMMON_CHAT_ID,
         text=text_to_common + f"{STATUS_INFO.format(AnswerStatusEnum.IGNORED.value)}",
+        parse_mode="HTML",
     )
 
-    try:
-        await db_manager.update_record(
-            Request,
-            request.id,
-            source_chat_msg_id=msg_to_source.message_id,
-            common_chat_msg_id=msg_to_common.message_id,
-            source_chat_msg_text=text_to_source,
-            common_chat_msg_text=text_to_common,
-        )
-    except Exception as e:
-        await msg_to_source.delete()
-        await msg_to_common.delete()
-        await message.answer(
-            text="Что-то пошло не так, обращение не было отправлено. Пожалуйста, повторите попытку еще раз.",
-            reply_markup=get_main_keyboard(),
-        )
-        await message.bot.send_message(
-            chat_id=ServiceChatIdEnum.MY_CHAT_ID.value,
-            text=f"error sending request from @{message.from_user.username} to"
-                 f"{service.service_name.value}.\nerror: {e}",
-        )
+    await db_manager.update_record(
+        Request,
+        request.id,
+        source_chat_msg_id=msg_to_source.message_id,
+        common_chat_msg_id=msg_to_common.message_id,
+        source_chat_msg_text=text_to_source,
+        common_chat_msg_text=text_to_common,
+    )
+
+
+def get_comment_from_message_text(text: str):
+    pattern = "Ваш комментарий: "
+    return text[text.rfind(pattern) + len(pattern):] if pattern in text else None
 
 
 async def send_request(bot, request: Request):
-    service: ServiceNameEnum = request.service
+    service: Service = await db_manager.get_record(Service, request.service_id)
+    location: Location = await db_manager.get_record(Location, request.location_id)
+    option: Option = await db_manager.get_record(Option, request.option_id)
+    user: User = await db_manager.get_record(User, request.user_id)
+
     text = (
         "Вам поступило обращение:\n"
-        f"{request.text}\n\n"
-        "Укажите ориентировочное время, необходимое для его выполнения - мы сообщим его отправителю."
+        f"<b>Компетенция</b>: {location.name}.\n"
+        f"<b>Цель обращения</b>: {option.name}.\n"
+        f"<b>Направлено от</b>: @{user.username}.\n"
     )
-    chat_id = SERVICE_MODELS[service.value].chat_id
+
+    if request.text:
+        text += f'<b>Текст обращения</b>: "{request.text}"\n\n'
+    text += "Укажите ориентировочное время, необходимое для его выполнения - мы сообщим его отправителю."
+
     await bot.send_message(
-        chat_id=chat_id, text=text, reply_markup=get_service_ans_keyboard(request.id)
+        chat_id=service.chat_id,
+        text=text,
+        reply_markup=get_service_ans_keyboard(request.id),
+        parse_mode="HTML",
     )
 
 
-@dp.callback_query(F.data == CANCEL_CALLBACK)
-async def handle_query(call: types.CallbackQuery, state: FSMContext):
-    await state.clear()
-    await call.message.edit_reply_markup(None)
-    await call.message.answer("Обращение отменено.", reply_markup=get_main_keyboard())
-
-
-@router.callback_query(ServiceAnswerCallback.filter())
-async def handle_query(call: types.CallbackQuery, callback_data: ServiceAnswerCallback):
+@router.callback_query(ServiceAnswerFactory.filter())
+async def handle_query(call: CallbackQuery, callback_data: ServiceAnswerFactory):
     request: Request = await db_manager.get_record(Request, callback_data.request_id)
     if callback_data.callback == AnswerStatusEnum.DENY.value:
         additional_common_chat_text = (
             f"{STATUS_INFO.format(AnswerStatusEnum.DENIED.value)}\n"
-            f"Представитель сервиса, отклонивший обращение - @{call.from_user.username}."
+            f"Представитель выбранной тематике, отклонивший обращение - @{call.from_user.username}."
         )
         additional_source_chat_text = (
             f"{STATUS_INFO.format(AnswerStatusEnum.DENIED.value)}"
         )
         text_to_source = (
             f"Ваше обращение №{request.id} было отклонено.\n"
-            f"Убедитесь, что Вы направили обращение в тот чат - используйте команду /help.\n"
-            f"Также вы можете связаться с представителем сервиса напрямую - @{call.from_user.username}."
+            # f"Убедитесь, что Вы направили обращение в тот чат - используйте команду /help.\n"
+            f"Убедитесь, что Вы направили обращение в тот чат.\n"
+            f"Также вы можете связаться с представителем выбранной тематики напрямую - @{call.from_user.username}."
         )
     else:
         additional_common_chat_text = (
@@ -183,30 +318,38 @@ async def handle_query(call: types.CallbackQuery, callback_data: ServiceAnswerCa
         )
         additional_source_chat_text = (
             f"{STATUS_INFO.format(AnswerStatusEnum.RESOLVED.value)}\n"
-            f"Представитель сервиса: @{call.from_user.username}."
+            f"Представитель: @{call.from_user.username}."
         )
         text_to_source = (
             f"Ваше обращение №{request.id} было принято в работу.\n"
             f"Ориентировочное время выполения: {callback_data.callback}.\n"
-            f"При необходимости, вы можете связаться с представителем сервиса напрямую: @{call.from_user.username}."
+            f"При необходимости, вы можете связаться с представителем тематики напрямую: @{call.from_user.username}."
         )
 
+    options = await db_manager.get_records(Hall)
+
     await call.bot.edit_message_text(
-        chat_id=ServiceChatIdEnum.COMMON_CHAT_ID.value,
+        chat_id=COMMON_CHAT_ID,
         message_id=request.common_chat_msg_id,
         text=request.common_chat_msg_text + additional_common_chat_text,
+        parse_mode="HTML",
     )
     await call.bot.edit_message_text(
         chat_id=request.user_id,
         message_id=request.source_chat_msg_id,
         text=request.source_chat_msg_text + additional_source_chat_text,
+        parse_mode="HTML",
     )
     await call.bot.send_message(
         chat_id=request.user_id,
         text=text_to_source,
         reply_to_message_id=request.source_chat_msg_id,
-        reply_markup=get_main_keyboard()
+    )
+    await call.bot.send_message(
+        chat_id=request.user_id,
+        text=HALL_CHOICE_TEXT,
+        reply_markup=get_hall_choice_keyboard(options),
     )
 
-    await call.message.edit_reply_markup(reply_markup=None)
+    await call.message.delete_reply_markup()
     await call.message.answer("Ваш ответ был направлен отправителю.")
