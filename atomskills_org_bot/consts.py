@@ -12,6 +12,9 @@ CANCEL_TEXT = "Отмена"
 CONFIRM_TEXT = "Продолжить"
 SKIP_COMMENT_TEXT = "Пропустить"
 
+MARK_AS_CLOSE_TEXT = "Отметить как выполненное"
+MARK_AS_CLOSED_CALLBACK = "MARK_AS_RESOLVED_CALLBACK"
+
 BACK_TO_MENU = 'В меню ⤵️'
 BACK = 'Назад ⤵️'
 

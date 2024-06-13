@@ -334,22 +334,37 @@ async def handle_query(call: CallbackQuery, callback_data: ServiceAnswerFactory)
             f"Ориентировочное время выполения: {callback_data.callback}.\n"
         )
         if username:
-            f"При необходимости, вы можете связаться с представителем тематики напрямую: @{call.from_user.username}."
+            text_to_source += f"При необходимости, вы можете связаться с представителем тематики напрямую: @{call.from_user.username}."
 
     options = await db_manager.get_records(Hall)
+
+    new_common_chat_text = request.common_chat_msg_text + additional_common_chat_text
+    new_source_chat_text = request.source_chat_msg_text + additional_source_chat_text
+
+    await db_manager.update_record(Request, request.id, common_chat_msg_text=new_common_chat_text)
+    await db_manager.update_record(Request, request.id, source_chat_msg_text=new_source_chat_text)
 
     await call.bot.edit_message_text(
         chat_id=COMMON_CHAT_ID,
         message_id=request.common_chat_msg_id,
-        text=request.common_chat_msg_text + additional_common_chat_text,
+        text=new_common_chat_text,
         parse_mode="HTML",
     )
-    await call.bot.edit_message_text(
-        chat_id=request.user_id,
-        message_id=request.source_chat_msg_id,
-        text=request.source_chat_msg_text + additional_source_chat_text,
-        parse_mode="HTML",
-    )
+    if callback_data.callback == AnswerStatusEnum.DENY.value:
+        await call.bot.edit_message_text(
+            chat_id=request.user_id,
+            message_id=request.source_chat_msg_id,
+            text=new_source_chat_text,
+            parse_mode="HTML"
+        )
+    else:
+        await call.bot.edit_message_text(
+            chat_id=request.user_id,
+            message_id=request.source_chat_msg_id,
+            text=new_source_chat_text,
+            parse_mode="HTML",
+            reply_markup=get_mark_as_closed_keyboard(request.id)
+        )
     await call.bot.send_message(
         chat_id=request.user_id,
         text=text_to_source,
@@ -363,3 +378,20 @@ async def handle_query(call: CallbackQuery, callback_data: ServiceAnswerFactory)
 
     await call.message.delete_reply_markup()
     await call.message.answer("Ваш ответ был направлен отправителю.")
+
+
+@router.callback_query(CloseRequestFactory.filter())
+async def handle_close_request(call: CallbackQuery, callback_data: CloseRequestFactory):
+    request: Request = await db_manager.get_record(Request, callback_data.request_id)
+    new_source_text = request.source_chat_msg_text.replace(AnswerStatusEnum.RESOLVED.value, AnswerStatusEnum.CLOSED.value)
+    new_common_text = request.common_chat_msg_text.replace(AnswerStatusEnum.RESOLVED.value, AnswerStatusEnum.CLOSED.value)
+    await call.message.edit_text(
+        text=new_source_text,
+        parse_mode="HTML"
+    )
+    await call.bot.edit_message_text(
+        text=new_common_text,
+        chat_id=COMMON_CHAT_ID,
+        message_id=request.common_chat_msg_id,
+        parse_mode="HTML"
+    )

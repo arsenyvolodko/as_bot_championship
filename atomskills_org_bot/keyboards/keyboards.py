@@ -173,3 +173,14 @@ def get_service_ans_keyboard(request_id: int):
         )
     builder.adjust(1)
     return builder.as_markup()
+
+
+def get_mark_as_closed_keyboard(request_id: int):
+    builder = InlineKeyboardBuilder()
+    builder.button(
+        text=MARK_AS_CLOSE_TEXT,
+        callback_data=CloseRequestFactory(
+            request_id=request_id
+        )
+    )
+    return builder.as_markup()

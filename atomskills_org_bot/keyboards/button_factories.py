@@ -52,3 +52,7 @@ class ConfirmationFactory(CallbackData, prefix="confirmation_callback_factory"):
 class ServiceAnswerFactory(CallbackData, prefix="service_answer_factory"):
     callback: str
     request_id: int
+
+
+class CloseRequestFactory(CallbackData, prefix="close_request_factory"):
+    request_id: int
