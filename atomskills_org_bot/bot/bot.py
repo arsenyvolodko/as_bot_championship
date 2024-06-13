@@ -14,6 +14,9 @@ dp.include_router(router)
 
 @router.message(CommandStart())
 async def welcome_message(message: Message, state: FSMContext):
+    if not message.from_user.username:
+        await message.answer("Для пользования ботом необходимо установить имя пользователя (username), это можно сделать в настроках тг.")
+        return
     await add_and_get_user(message)
     if state:
         await state.clear()
@@ -276,6 +279,7 @@ async def send_request(bot, request: Request):
 
     text = (
         "Вам поступило обращение:\n"
+        f"<b>Павильон №{location.hall_id}</b>.\n"
         f"<b>Компетенция</b>: {location.name}.\n"
         f"<b>Цель обращения</b>: {option.name}.\n"
         f"<b>Направлено от</b>: @{user.username}.\n"
@@ -296,11 +300,13 @@ async def send_request(bot, request: Request):
 @router.callback_query(ServiceAnswerFactory.filter())
 async def handle_query(call: CallbackQuery, callback_data: ServiceAnswerFactory):
     request: Request = await db_manager.get_record(Request, callback_data.request_id)
+    username = call.from_user.username
     if callback_data.callback == AnswerStatusEnum.DENY.value:
         additional_common_chat_text = (
             f"{STATUS_INFO.format(AnswerStatusEnum.DENIED.value)}\n"
-            f"Представитель выбранной тематике, отклонивший обращение - @{call.from_user.username}."
         )
+        if username:
+            additional_common_chat_text += f"Представитель выбранной тематике, отклонивший обращение - @{call.from_user.username}."
         additional_source_chat_text = (
             f"{STATUS_INFO.format(AnswerStatusEnum.DENIED.value)}"
         )
@@ -308,23 +314,27 @@ async def handle_query(call: CallbackQuery, callback_data: ServiceAnswerFactory)
             f"Ваше обращение №{request.id} было отклонено.\n"
             # f"Убедитесь, что Вы направили обращение в тот чат - используйте команду /help.\n"
             f"Убедитесь, что Вы направили обращение в тот чат.\n"
-            f"Также вы можете связаться с представителем выбранной тематики напрямую - @{call.from_user.username}."
         )
+        if username:
+            text_to_source += f"Также вы можете связаться с представителем выбранной тематики напрямую - @{call.from_user.username}."
     else:
         additional_common_chat_text = (
             f"{STATUS_INFO.format(AnswerStatusEnum.RESOLVED.value)}\n"
             f"Ориентировочное время выполнения: {callback_data.callback}.\n"
-            f"Исполнитель: @{call.from_user.username}."
         )
+        if username:
+            additional_common_chat_text += f"Исполнитель: @{call.from_user.username}."
         additional_source_chat_text = (
             f"{STATUS_INFO.format(AnswerStatusEnum.RESOLVED.value)}\n"
-            f"Представитель: @{call.from_user.username}."
         )
+        if username:
+            additional_source_chat_text += f"Представитель: @{call.from_user.username}."
         text_to_source = (
             f"Ваше обращение №{request.id} было принято в работу.\n"
             f"Ориентировочное время выполения: {callback_data.callback}.\n"
-            f"При необходимости, вы можете связаться с представителем тематики напрямую: @{call.from_user.username}."
         )
+        if username:
+            f"При необходимости, вы можете связаться с представителем тематики напрямую: @{call.from_user.username}."
 
     options = await db_manager.get_records(Hall)
 
