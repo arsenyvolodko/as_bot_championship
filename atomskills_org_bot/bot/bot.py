@@ -9,7 +9,7 @@ from atomskills_org_bot.consts import (
     STATUS_INFO,
 )
 from atomskills_org_bot.db.manager import db_manager
-from atomskills_org_bot.db.tables import Request
+from atomskills_org_bot.db.tables import Request, User
 from atomskills_org_bot.enums import ServiceNameEnum, ServiceChatIdEnum
 from atomskills_org_bot.enums.answer_status_enum import AnswerStatusEnum
 from atomskills_org_bot.models import ServiceModel
@@ -35,6 +35,11 @@ dp.include_router(router)
 
 @dp.message(CommandStart())
 async def welcome_message(message: types.Message, state: FSMContext) -> None:
+    if not message.from_user.username:
+        await message.answer(
+            "Для использования бота необходимо установить имя пользователя (username) - это можно сделать в настройках телеграм."
+        )
+        return
     await add_and_get_user(message)
     if state:
         await state.clear()
@@ -63,7 +68,7 @@ async def process_callback_button1(message: Message, state: FSMContext = None):
     await state.set_state(service.state.value)
     message = await message.answer(
         f'Ваше обращение будет направлено в сервис "{service.service_name.value}".\n'
-        'Отправьте сообщение с текстом обращени, Не забудьте указать всю необходимую информацию для представителей сервиса.\n'
+        'Отправьте сообщение с текстом обращения, Не забудьте указать всю необходимую информацию для представителей сервиса.\n'
         "После отправки сообщения обращение будет автоматически направлено в выбранный сервис.",
         reply_markup=get_cancel_keyboard(),
     )
@@ -141,9 +146,11 @@ async def handle_request_message(message: Message, state: FSMContext):
 
 async def send_request(bot, request: Request):
     service: ServiceNameEnum = request.service
+    user = await db_manager.get_record(User, request.user_id)
     text = (
         "Вам поступило обращение:\n"
-        f"{request.text}\n\n"
+        f"Направлено от: {user.username}.\n"
+        f'Текст обращения: "{request.text}"\n\n'
         "Укажите ориентировочное время, необходимое для его выполнения - мы сообщим его отправителю."
     )
     chat_id = SERVICE_MODELS[service.value].chat_id
@@ -205,7 +212,7 @@ async def handle_query(call: types.CallbackQuery, callback_data: ServiceAnswerCa
         chat_id=request.user_id,
         text=text_to_source,
         reply_to_message_id=request.source_chat_msg_id,
-        reply_markup=get_main_keyboard()
+        reply_markup=get_main_keyboard(),
     )
 
     await call.message.edit_reply_markup(reply_markup=None)
