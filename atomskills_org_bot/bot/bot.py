@@ -149,7 +149,7 @@ async def send_request(bot, request: Request):
     user = await db_manager.get_record(User, request.user_id)
     text = (
         "Вам поступило обращение:\n"
-        f"Направлено от: {user.username}.\n"
+        f"Направлено от: @{user.username}.\n"
         f'Текст обращения: "{request.text}"\n\n'
         "Укажите ориентировочное время, необходимое для его выполнения - мы сообщим его отправителю."
     )
