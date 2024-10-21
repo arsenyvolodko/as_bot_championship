@@ -2,7 +2,7 @@ from aiogram.fsm.state import State
 
 COMMENT_AWAITING_STATE = State("COMMENT_AWAITING_STATE")
 CONFIRMATION_AWAITING_STATE = State("CONFIRMATION_AWAITING_STATE")
-COMMON_CHAT_ID = -1002198856707
+COMMON_CHAT_ID = -1002317451898
 
 START_TEXT = ("Этот бот позволяет направить обращение по выбранной тематике.\n"
               # "Для просмотра доступных сервисов и их описания используйте команду /help.\n"
