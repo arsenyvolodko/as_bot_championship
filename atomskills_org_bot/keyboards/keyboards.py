@@ -69,6 +69,7 @@ def get_service_choice_keyboard(
     builder = InlineKeyboardBuilder()
     page = paginate.Page(options, items_per_page=5, page=page_num)
     items: list[Service] = page.items
+    items.sort(key=lambda x: x.id)
     for item in items:
         builder.button(
             text=item.name,
@@ -109,6 +110,7 @@ def get_option_choice_keyboard(
     options: list[Option], hall_id: int, location_id: int, service_id
 ):
     builder = InlineKeyboardBuilder()
+    options.sort(key=lambda x: x.id)
     for item in options:
         builder.button(
             text=item.name,
