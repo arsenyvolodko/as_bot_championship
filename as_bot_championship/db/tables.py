@@ -4,7 +4,7 @@ from sqlalchemy.orm import DeclarativeBase, Mapped, mapped_column
 from sqlalchemy.types import DateTime
 from datetime import datetime
 
-from atomskills_org_bot.enums.answer_status_enum import AnswerStatusEnum
+from as_bot_championship.enums.answer_status_enum import AnswerStatusEnum
 
 
 class Base(AsyncAttrs, DeclarativeBase):

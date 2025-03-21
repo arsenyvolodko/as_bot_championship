@@ -3,9 +3,9 @@ from aiogram.filters import CommandStart
 from aiogram.fsm.context import FSMContext
 from aiogram.types import Message, CallbackQuery
 
-from atomskills_org_bot.db.manager import db_manager
-from atomskills_org_bot.db.tables import Hall, Request, User
-from atomskills_org_bot.keyboards.keyboards import *
+from as_bot_championship.db.manager import db_manager
+from as_bot_championship.db.tables import Hall, Request, User
+from as_bot_championship.keyboards.keyboards import *
 
 dp = Dispatcher()
 router = Router()

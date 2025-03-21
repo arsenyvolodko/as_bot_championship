@@ -1,4 +1,4 @@
-from atomskills_org_bot.db.tables import Location, Option, Service, Hall
+from as_bot_championship.db.tables import Location, Option, Service, Hall
 
 halls = [Hall(name=f"Павильон №{num}") for num in range(1, 5)]
 

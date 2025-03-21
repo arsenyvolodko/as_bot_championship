@@ -4,8 +4,8 @@ import sys
 
 from aiogram import Bot
 
-from atomskills_org_bot.bot.bot import dp
-from atomskills_org_bot.config import BOT_TOKEN
+from as_bot_championship.bot.bot import dp
+from as_bot_championship.config import BOT_TOKEN
 
 logging.basicConfig(level=logging.INFO, stream=sys.stdout)
 

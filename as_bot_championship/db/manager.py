@@ -3,9 +3,9 @@ import asyncio
 from sqlalchemy import select, update
 from sqlalchemy.ext.asyncio import create_async_engine, async_sessionmaker, AsyncEngine
 
-from atomskills_org_bot.config import DATABASE_URL
-from atomskills_org_bot.db.tables import Base, Location
-from atomskills_org_bot.bot.champ_entities import locations, services, options, halls
+from as_bot_championship.config import DATABASE_URL
+from as_bot_championship.db.tables import Base, Location
+from as_bot_championship.bot.champ_entities import locations, services, options, halls
 
 
 class EngineManager:

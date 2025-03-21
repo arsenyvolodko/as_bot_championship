@@ -1,4 +1,4 @@
 .idea/
 __pycache__/
 .env
-atomskills_org_bot/config.py
+as_bot_championship/config.py

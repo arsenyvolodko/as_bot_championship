@@ -1,10 +1,10 @@
 import paginate
 from aiogram.utils.keyboard import InlineKeyboardBuilder
 
-from atomskills_org_bot.consts import *
-from atomskills_org_bot.db.tables import Location, Service, Option
-from atomskills_org_bot.enums import PageButtonEnum, AnswerStatusEnum
-from atomskills_org_bot.keyboards.button_factories import *
+from as_bot_championship.consts import *
+from as_bot_championship.db.tables import Location, Service, Option
+from as_bot_championship.enums import PageButtonEnum, AnswerStatusEnum
+from as_bot_championship.keyboards.button_factories import *
 
 
 def get_back_to_main_keyboard():
