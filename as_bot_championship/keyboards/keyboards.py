@@ -29,7 +29,7 @@ def get_hall_choice_keyboard(options: list[Option]):
 
 def get_location_choice_keyboard(options: list[Location], hall_id: int, page_num: int):
     builder = InlineKeyboardBuilder()
-    page = paginate.Page(options, items_per_page=5, page=page_num)
+    page = paginate.Page(options, items_per_page=8, page=page_num)
     items: list[Location] = page.items
     for item in items:
         builder.button(

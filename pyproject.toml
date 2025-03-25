@@ -1,5 +1,5 @@
 [tool.poetry]
-name = "atomskills-org-bot"
+name = "as-bot-championship"
 version = "0.1.0"
 description = ""
 authors = ["Volodko Arseny <arvolodko@gmail.com>"]

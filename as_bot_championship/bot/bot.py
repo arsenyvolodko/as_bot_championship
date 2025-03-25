@@ -3,6 +3,7 @@ from aiogram.filters import CommandStart
 from aiogram.fsm.context import FSMContext
 from aiogram.types import Message, CallbackQuery
 
+from as_bot_championship.config import COMMON_CHAT_ID
 from as_bot_championship.db.manager import db_manager
 from as_bot_championship.db.tables import Hall, Request, User
 from as_bot_championship.keyboards.keyboards import *
@@ -312,7 +313,6 @@ async def handle_query(call: CallbackQuery, callback_data: ServiceAnswerFactory)
         )
         text_to_source = (
             f"Ваше обращение №{request.id} было отклонено.\n"
-            # f"Убедитесь, что Вы направили обращение в тот чат - используйте команду /help.\n"
             f"Убедитесь, что Вы направили обращение в тот чат.\n"
         )
         if username:
