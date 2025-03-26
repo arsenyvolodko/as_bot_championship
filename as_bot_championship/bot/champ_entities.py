@@ -83,7 +83,7 @@ options = [
     Option(name="Проблема с ТВ", comment="", service_id=1),
     Option(name="Проблема со звуком\микрофоном", comment="", service_id=1),
     Option(name="Проблема с принтером", comment="", service_id=1),
-    Option(name="Проблема с компьютером", comment="", service_id=1),
+    Option(name="Проблема с компьютером или сетью", comment="", service_id=1),
     Option(name="Иное", comment="", service_id=1),
 
     Option(name="Проблемы со стенами", comment="", service_id=2),
@@ -104,15 +104,18 @@ options = [
     Option(name="Проблемы с вентиляцией", comment="", service_id=5),
     Option(name="Проблема со сжатым воздухом", comment="", service_id=5),
     Option(name="Проблема с водой/канализацией", comment="", service_id=5),
+    Option(name="Общий климат в павильонах", comment="", service_id=5),
+    Option(name="Иное", comment="", service_id=5),
 
     Option(name="Нехватка мебели", comment="", service_id=6),
     Option(name="Несоответствующая мебель", comment="", service_id=6),
     Option(name="Сломанная мебель", comment="", service_id=6),
     Option(name="Иное", comment="", service_id=6),
 
-    Option(name="Нет интернета (проводное подкл.)", comment="", service_id=7),
-    Option(name="Нет интернета (wi-fi)", comment="", service_id=7),
-    Option(name="Поврежден сетевой кабель", comment="", service_id=7),
+    Option(name="Проблемы с проводной сетью", comment="", service_id=7),
+    Option(name="Проблемы с wi-fi", comment="", service_id=7),
+    Option(name="Проблемы с компьютерами", comment="", service_id=7),
+    Option(name="Проблемы с печатью", comment="", service_id=7),
     Option(name="Иное", comment="", service_id=7),
 
     Option(name="Охрана", comment="", service_id=8),
@@ -131,5 +134,5 @@ options = [
     Option(name="Уборка компетенции", comment="", service_id=10),
     Option(name="Компетенция не убрана с прошлого дня", comment="", service_id=10),
     Option(name="Требуется уборка прямо сейчас", comment="", service_id=10),
-
+    Option(name="Деловая программа", comment="", service_id=10),
 ]
