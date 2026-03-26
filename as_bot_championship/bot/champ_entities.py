@@ -1,79 +1,66 @@
 from as_bot_championship.db.tables import Location, Option, Service, Hall
 
 halls = [
-    *[Hall(name=f"Павильон №{num}") for num in range(1, 4)],
-    Hall(name="\"Шахматка\"")
+    *[Hall(name=f"Павильон №{num}") for num in range(1, 4)]
 ]
 
 locations = [
-    Location(name="Бетонные строительные работы", hall_id=1),
-    Location(name="Каракури", hall_id=1),
-    Location(name="Промышленная механика и монтаж", hall_id=1),
     Location(name="Технологии композитов", hall_id=1),
-    Location(name="Аддитивные технологии", hall_id=1),
-    Location(name="Водитель спец.автомобиля", hall_id=1),
-    Location(name="Изготовление прототипов", hall_id=1),
-    Location(name="Промышленная автоматика", hall_id=1),
+    Location(name="Промышленная механика", hall_id=1),
     Location(name="Сварочные технологии", hall_id=1),
+    Location(name="Аддитивные технологии", hall_id=1),
+    Location(name="Бетонные работы", hall_id=1),
+    Location(name="Прототипы", hall_id=1),
     Location(name="Электромонтаж", hall_id=1),
+    Location(name="Водитель спец. автомобиля", hall_id=1),
+    Location(name="Промавтоматика", hall_id=1),
     Location(name="Электроника", hall_id=1),
-    Location(name="Комната лидеров команд", hall_id=1),
-    Location(name="Склад для ТМЦ", hall_id=1),
-    Location(name="Зона информации", hall_id=1),
-    Location(name="Зона проверки на алкоголь", hall_id=1),
-    Location(name="Склад для ТМЦ", hall_id=1),
+    Location(name="Каракури", hall_id=1),
+    Location(name="Разработка бизнесс процессов", hall_id=1),
 
-    Location(name="Вывод из экспл. объектов атом. энергии", hall_id=2),
-    Location(name="Инженерное проектирование", hall_id=2),
-    Location(name="Математическое моделирование", hall_id=2),
-    Location(name="Строительный контроль", hall_id=2),
-    Location(name="Цифровое ПСР предприятие", hall_id=2),
-    Location(name="Инженерный дизайн CAD", hall_id=2),
-    Location(name="Инженер-технолог машиностроения", hall_id=2),
-    Location(name="Квантовые технологии (СП Квант)", hall_id=2),
-    Location(name="Неразрушающий контроль", hall_id=2),
-    Location(name="Охрана окружающей среды", hall_id=2),
+    Location(name="Квантовые технологии", hall_id=2),
     Location(name="Охрана труда", hall_id=2),
-    Location(name="Сметное дело", hall_id=2),
-    Location(name="Тех.системы энергетических объектов", hall_id=2),
+    Location(name="Охрана окружающей среды", hall_id=2),
+    Location(name="Неразрушающий контроль", hall_id=2),
+    Location(name="Математическое моделировнаие", hall_id=2),
+    Location(name="Вывод из эксплуатации", hall_id=2),
+    Location(name="Инженер технолог", hall_id=2),
+    Location(name="Инженерное проектирование", hall_id=2),
+    Location(name="ПСР", hall_id=2),
+    Location(name="Инженер конструктор", hall_id=2),
+    Location(name="ТСЭО", hall_id=2),
+    Location(name="Строительный контроль", hall_id=2),
     Location(name="Программная роботизация", hall_id=2),
-    Location(name="Зона информации", hall_id=2),
-    Location(name="Зона проверки на алкоголь", hall_id=2),
 
+    Location(name="Мехатроника", hall_id=3),
+    Location(name="Корп.защита", hall_id=3),
+    Location(name="ПРБ", hall_id=3),
+    Location(name="Сметное дело", hall_id=3),
+    Location(name="Управление коммуникациями", hall_id=3),
     Location(name="Геодезия", hall_id=3),
-    Location(name="Информационная безопасность", hall_id=3),
-    Location(name="Корп. защита от внутр. угроз без-ти", hall_id=3),
-    Location(name="Продуктовая разработка", hall_id=3),
-    Location(name="Сетевое и сис. администрирование", hall_id=3),
-    Location(name="Управление жизненным циклом", hall_id=3),
-    Location(name="Управление качеством", hall_id=3),
-    Location(name="Анал.контроль (лаб-хим анализ)", hall_id=3),
-    Location(name="Машинное обучение и большие данные", hall_id=3),
-    Location(name="Автоматизация тех.процессов", hall_id=3),
-    Location(name="Обслуживание оборуд. релейной защиты", hall_id=3),
-    Location(name="Радиационный контроль", hall_id=3),
-    Location(name="Управ. комм-ми/Антикриз. реаг-ие", hall_id=3),
-    Location(name="Разработка приложений на 1С", hall_id=3),
     Location(name="Графический дизайн", hall_id=3),
-    Location(name="Зона информации", hall_id=3),
-    Location(name="Зона проверки на алкоголь", hall_id=3),
-
-    Location(name="Штаб организаторов", hall_id=4),
+    Location(name="СИСА", hall_id=3),
+    Location(name="РЗА", hall_id=3),
+    Location(name="УЖЦ", hall_id=3),
+    Location(name="Управление качеством", hall_id=3),
+    Location(name="ЛХА", hall_id=3),
+    Location(name="Радиационный контроль", hall_id=3),
+    Location(name="Информационная безопасность", hall_id=3),
+    Location(name="Машинное обучение", hall_id=3),
 ]
 
 services = [
-    Service(name="Обеспечение компетенции", chat_id=-1002696338559),                 # service_id = 1
-    Service(name="Застройка", chat_id=-1002548316765),                               # service_id = 2
-    Service(name="Электрика", chat_id=-1002638696932),                               # service_id = 3
-    Service(name="Питьевая вода", chat_id=-1002545994172),                           # service_id = 4
-    Service(name="Вентиляция, канализация, сжатый воздух", chat_id=-1002699446019),  # service_id = 5
-    Service(name="Мебель", chat_id=-1002521497717),                                  # service_id = 6
-    Service(name="Сеть, интернет и ИТ", chat_id=-1002269795231),                     # service_id = 7
-    Service(name="Безопасность", chat_id= -1002595001452),                           # service_id = 8
-    Service(name="Цифровая платформа", chat_id=-1002546473905),                      # service_id = 9
-    Service(name="Уборка", chat_id=-1002450269099),                                  # service_id = 10
+    Service(name="Обеспечение компетенции", chat_id=-1003713437737),  # service_id = 1
+    Service(name="Застройка", chat_id=-1003802105205),  # service_id = 2
+    Service(name="Электрика", chat_id=-1003774380183),  # service_id = 3
+    Service(name="Питьевая вода", chat_id=-1003758010670),  # service_id = 4
+    Service(name="Вода, Вентиляция, канализация, сжатый воздух", chat_id=-1003650680014),  # service_id = 5
+    Service(name="Мебель и обеспечение компетенции", chat_id=-1003846328914),  # service_id = 6
+    Service(name="ИТ - Компьютеры, сеть и интернет", chat_id=-1003722525312),  # service_id = 7
+    Service(name="Безопасность", chat_id=-1003879387133),  # service_id = 8
+    Service(name="Цифровая платформа", chat_id=-1003709176704),  # service_id = 9
+    Service(name="Уборка", chat_id=-1003702161283),  # service_id = 10
 ]
-
 
 options = [
     Option(name="Расходные материалы", comment="", service_id=1),
@@ -83,12 +70,12 @@ options = [
     Option(name="Проблема с ТВ", comment="", service_id=1),
     Option(name="Проблема со звуком\микрофоном", comment="", service_id=1),
     Option(name="Проблема с принтером", comment="", service_id=1),
-    Option(name="Проблема с компьютером или сетью", comment="", service_id=1),
+    Option(name="Компьютеры, мониторы, ИТ-техника", comment="", service_id=1),
+    Option(name="Установка ПО", comment="", service_id=1),
     Option(name="Иное", comment="", service_id=1),
 
     Option(name="Проблемы со стенами", comment="", service_id=2),
-    Option(name="Проблемы с дверью", comment="", service_id=2),
-    Option(name="Иное", comment="", service_id=2),
+    Option(name="Дверь не закрывается / не открывается", comment="", service_id=2),
 
     Option(name="Пропало электричество в розетке 220V", comment="", service_id=3),
     Option(name="Пропало электричество в розетке 380V", comment="", service_id=3),
@@ -104,7 +91,6 @@ options = [
     Option(name="Проблемы с вентиляцией", comment="", service_id=5),
     Option(name="Проблема со сжатым воздухом", comment="", service_id=5),
     Option(name="Проблема с водой/канализацией", comment="", service_id=5),
-    Option(name="Общий климат в павильонах", comment="", service_id=5),
     Option(name="Иное", comment="", service_id=5),
 
     Option(name="Нехватка мебели", comment="", service_id=6),
@@ -112,14 +98,16 @@ options = [
     Option(name="Сломанная мебель", comment="", service_id=6),
     Option(name="Иное", comment="", service_id=6),
 
+    Option(name="Проблемы с компьютерами", comment="", service_id=7),
+    Option(name="Проблемы с ПО", comment="", service_id=7),
     Option(name="Проблемы с проводной сетью", comment="", service_id=7),
     Option(name="Проблемы с wi-fi", comment="", service_id=7),
-    Option(name="Проблемы с компьютерами", comment="", service_id=7),
-    Option(name="Проблемы с печатью", comment="", service_id=7),
+    Option(name="Поврежден сетевой кабель", comment="", service_id=7),
     Option(name="Иное", comment="", service_id=7),
 
     Option(name="Охрана", comment="", service_id=8),
     Option(name="Группа быстрого реагирования", comment="", service_id=8),
+    Option(name="Иное", comment="", service_id=8),
 
     Option(name="Регистрация", comment="", service_id=9),
     Option(name="Схема оценок", comment="", service_id=9),
@@ -134,5 +122,4 @@ options = [
     Option(name="Уборка компетенции", comment="", service_id=10),
     Option(name="Компетенция не убрана с прошлого дня", comment="", service_id=10),
     Option(name="Требуется уборка прямо сейчас", comment="", service_id=10),
-    Option(name="Деловая программа", comment="", service_id=10),
 ]

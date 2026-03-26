@@ -15,9 +15,6 @@ dp.include_router(router)
 
 @router.message(CommandStart())
 async def welcome_message(message: Message, state: FSMContext):
-    if not message.from_user.username:
-        await message.answer("Для пользования ботом необходимо установить имя пользователя (username), это можно сделать в настроках тг.")
-        return
     await add_and_get_user(message)
     if state:
         await state.clear()
@@ -246,8 +243,9 @@ async def handle_confirmation_callback(
         f"<b>Тематика обращения</b>: {service.name}.\n"
         f"<b>Компетенция</b>: {location.name}.\n"
         f"<b>Цель обращения</b>: {option.name}.\n"
-        f"<b>Направлено от</b>: @{call.from_user.username}.\n"
     )
+    if call.from_user.username:
+        text_to_common += f"<b>Направлено от</b>: @{call.from_user.username}.\n"
     if comment:
         text_to_common += f'<b>Текст обращения</b>: "{request.text}"\n'
 
@@ -283,12 +281,16 @@ async def send_request(bot, request: Request):
         f"<b>Павильон №{location.hall_id}</b>.\n"
         f"<b>Компетенция</b>: {location.name}.\n"
         f"<b>Цель обращения</b>: {option.name}.\n"
-        f"<b>Направлено от</b>: @{user.username}.\n"
     )
+
+    if user.username:
+        text += f"<b>Направлено от</b>: @{user.username}.\n"
 
     if request.text:
         text += f'<b>Текст обращения</b>: "{request.text}"\n\n'
     text += "Укажите ориентировочное время, необходимое для его выполнения - мы сообщим его отправителю."
+
+    print(service.chat_id)
 
     await bot.send_message(
         chat_id=service.chat_id,

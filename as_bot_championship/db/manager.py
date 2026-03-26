@@ -56,7 +56,7 @@ class DBManager:
                 getattr(model, key) == value
                 for key, value in kwargs.items()
             ]
-        )
+        ).order_by(model.id)
         async with self.session_maker() as session:
             result = await session.execute(query)
             records = result.scalars().all()
