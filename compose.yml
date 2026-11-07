@@ -1,4 +1,3 @@
-version: '3'
 services:
 
   bot:
@@ -8,6 +7,7 @@ services:
     env_file:
       - .env
     command: python3 /app/as_bot_championship/bot/main.py
+    restart: unless-stopped
     depends_on:
       db:
         condition: service_healthy

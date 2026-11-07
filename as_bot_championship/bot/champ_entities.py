@@ -63,11 +63,11 @@ locations = [
 
 services = [
     Service(name="Обеспеч. компетенции (ЭКСПО)", chat_id=-1004341939486),  # service_id = 1
-    Service(name="Обеспеч. компетенции (СКЛАД - Для РОСАТОМА)", chat_id=-1004477091259),  # service_id = 2
+    Service(name="Обеспеч. комп-ии. (склад - для Росатома)", chat_id=-1004477091259),  # service_id = 2
     Service(name="Застройка", chat_id=-1004431139187),  # service_id = 3
     Service(name="Электрика", chat_id=-1004392373507),  # service_id = 4
     Service(name="Вода, Вентиляция, канализация, сжатый воздух", chat_id=-1003804396391),  # service_id = 5
-    Service(name="ИТ - Компьютеры, сеть и интернет (Для Росатома)", chat_id=-1004300694748),  # service_id = 6
+    Service(name="ИТ: Комп-ры, сеть/интернет (Для Росатома)", chat_id=-1004300694748),  # service_id = 6
     Service(name="Безопасность", chat_id=-1004385457272),  # service_id = 7
     Service(name="Уборка", chat_id=-1004447080126),  # service_id = 8
 ]
